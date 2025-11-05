@@ -4,7 +4,7 @@ const students = [
     id: 1, 
     name: "Maria Gomez", 
     grade: "5th Grade", 
-    photo: "images/maria.jpg"  // ← your photo
+    photo: "images/Maria.jpg"  
   },
   { 
     id: 2, 
