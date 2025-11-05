@@ -1,5 +1,5 @@
 // YOUR GOOGLE SHEET CSV URL (replace this!)
-const CSV_URL = 'https://docs.google.com/spreadsheets/d/1H0apGdCoHkYdhYK2xQuIphS-ixp8q61iAqS5tn5BEQk/edit?gid=0#gid=0';
+const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRCq3kShXZU02-bpw0IPdK21XlXzXIrdSOVgTl8c35d2NiYkaBr24ljVql5P6FnQK5_7IzHZds3vLOw/pubhtml';
 
 let students = [];
 
