@@ -1,1 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Student Portfolio Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Student Portfolio</h1>
+      <select id="student-select">
+        <option value="0">Select a student...</option>
+      </select>
+    </header>
 
+    <div id="dashboard" class="hidden">
+      <div class="student-header">
+        <img src="https://via.placeholder.com/80" alt="Student" class="student-photo">
+        <div>
+          <h2 id="student-name"></h2>
+          <p id="student-grade"></p>
+        </div>
+      </div>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="progress">Progress</button>
+        <button class="tab-btn" data-tab="behavior">Behavior</button>
+        <button class="tab-btn" data-tab="iep">IEP/504</button>
+        <button class="tab-btn" data-tab="contact">Parent Contact</button>
+      </div>
+
+      <div class="tab-content">
+        <div id="progress" class="tab-panel active">
+          <h3>Grades</h3>
+          <ul class="grades-list">
+            <li>Math: <strong>A-</strong></li>
+            <li>Reading: <strong>B+</strong></li>
+            <li>Spanish: <strong>A</strong></li>
+          </ul>
+        </div>
+        <div id="behavior" class="tab-panel">
+          <h3>Behavior Notes</h3>
+          <p><strong>10/28</strong>: Participated well in group work</p>
+          <p><strong>10/25</strong>: Needed reminder to stay on task</p>
+        </div>
+        <div id="iep" class="tab-panel">
+          <h3>IEP Goals</h3>
+          <p><strong>Goal 1</strong>: Read 20 words/min → On track</p>
+          <p><strong>Goal 2</strong>: Complete math facts in 3 min → Needs support</p>
+        </div>
+        <div id="contact" class="tab-panel">
+          <h3>Parent Contact Log</h3>
+          <p><strong>10/30</strong>: Email → "Great progress in Spanish!"</p>
+          <p><strong>10/15</strong>: Phone → Discussed behavior plan</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
