@@ -1,8 +1,23 @@
 // Sample data
 const students = [
-  { id: 1, name: "Maria Gomez", grade: "5th Grade", photo: "https://i.pravatar.cc/80?img=1" },
-  { id: 2, name: "Jamal Carter", grade: "6th Grade", photo: "https://i.pravatar.cc/80?img=2" },
-  { id: 3, name: "Sofia Chen", grade: "5th Grade", photo: "https://i.pravatar.cc/80?img=3" }
+  { 
+    id: 1, 
+    name: "Maria Gomez", 
+    grade: "5th Grade", 
+    photo: "images/maria.jpg"  // ← your photo
+  },
+  { 
+    id: 2, 
+    name: "Jamal Carter", 
+    grade: "6th Grade", 
+    photo: "images/jamal.jpg" 
+  },
+  { 
+    id: 3, 
+    name: "Sofia Chen", 
+    grade: "5th Grade", 
+    photo: "images/sofia.jpg" 
+  }
 ];
 
 // DOM Elements
