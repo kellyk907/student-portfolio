@@ -110,3 +110,22 @@ h1 {
     flex-direction: column;
   }
 }
+.print-btn {
+  margin-left: auto;
+  padding: 0.5rem 1rem;
+  background: #27ae60;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+@media print {
+  body { background: white; }
+  .teacher-tip, .print-btn, header, .tabs { display: none !important; }
+  .tab-content { box-shadow: none; page-break-inside: avoid; }
+  .student-header { border-bottom: 2px solid #27ae60; padding-bottom: 1rem; margin-bottom: 1rem; }
+  .tab-panel { display: block !important; }
+  h3 { margin-top: 1.5rem; }
+}
