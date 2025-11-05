@@ -1,7 +1,5 @@
 // YOUR GOOGLE SHEET CSV URL (update this once)
 const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRCq3kShXZU02-bpw0IPdK21XlXzXIrdSOVgTl8c35d2NiYkaBr24ljVql5P6FnQK5_7IzHZds3vLOw/pub?output=csv';
-// YOUR GOOGLE SHEET CSV URL (replace with your published link)
-const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRLw.../pub?output=csv';  // ← UPDATE THIS
 
 let students = [];
 let col = {};  // Will hold column indices by header name
