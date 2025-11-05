@@ -7,7 +7,8 @@ let col = {};  // Will hold column indices by header name
 // DOM Elements
 const select = document.getElementById('student-select');
 const dashboard = document.getElementById('dashboard');
-const studentName = document.getElementById('student-name');
+const studentName = document.getElementById('student name');
+const studentName = document.getElementById('student last name');
 const studentGrade = document.getElementById('student-grade');
 const studentPhoto = document.querySelector('.student-photo');
 
