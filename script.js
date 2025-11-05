@@ -1,6 +1,5 @@
 // YOUR GOOGLE SHEET CSV URL (update this once)
-const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRLw.../pub?output=csv';  // ← YOUR LINK
-
+const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRCq3kShXZU02-bpw0IPdK21XlXzXIrdSOVgTl8c35d2NiYkaBr24ljVql5P6FnQK5_7IzHZds3vLOw/pub?output=csv';
 let students = [];
 let headerMap = {};  // Will map header names to column index
 
