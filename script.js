@@ -22,4 +22,73 @@ const students = [
   { id: 20, name: "James Young", grade: "5th", homeLang: "English", photo: "https://i.pravatar.cc/80?img=62", math: "B-", reading: "C+", spanish: "B-", science: "B-", social: "C+", behavior: "Math anxiety", iep: "Tutoring → Gaining confidence", contact: "10/13: Call - Weekly wins" },
   { id: 21, name: "Harper King", grade: "4th", homeLang: "English", photo: "https://i.pravatar.cc/80?img=65", math: "A-", reading: "B+", spanish: "A", science: "B+", social: "B+", behavior: "Loves animals", iep: "N/A", contact: "10/17: Email - Pet report" },
   { id: 22, name: "Benjamin Wright", grade: "6th", homeLang: "English", photo: "https://i.pravatar.cc/80?img=68", math: "B+", reading: "B", spanish: "B+", science: "B+", social: "B", behavior: "Reliable helper", iep: "N/A", contact: "10/25: Email - Thank you" },
-  { id: 23, name: "Evelyn Scott", grade: "5th", homeLang: "English", photo
+  { id: 23, name: "Evelyn Scott", grade: "5th", homeLang: "English", photo: "https://i.pravatar.cc/80?img=70", math: "A", reading: "A-", spanish: "A+", science: "A", social: "A+", behavior: "Perfect attendance", iep: "N/A", contact: "10/28: Email - Role model" },
+  { id: 24, name: "Michael Green", grade: "6th", homeLang: "English", photo: "https://i.pravatar.cc/80?img=72", math: "C+", reading: "B-", spanish: "C+", science: "C", social: "B-", behavior: "Gaming distraction", iep: "Screen time contract", contact: "10/09: Meeting - Progress check" },
+  { id: 25, name: "Lily Adams", grade: "5th", homeLang: "English", photo: "https://i.pravatar.cc/80?img=75", math: "B", reading: "A", spanish: "B+", science: "A-", social: "A", behavior: "Energetic artist", iep: "N/A", contact: "10/31: Email - Art show" }
+];
+
+const select = document.getElementById('student-select');
+const dashboard = document.getElementById('dashboard');
+const studentName = document.getElementById('student-name');
+const studentGrade = document.getElementById('student-grade');
+const studentPhoto = document.querySelector('.student-photo');
+
+function addPrintButton() {
+  if (document.querySelector('.print-btn')) return;
+  const btn = document.createElement('button');
+  btn.textContent = 'Print PDF';
+  btn.className = 'print-btn';
+  btn.onclick = () => window.print();
+  document.querySelector('.student-header').appendChild(btn);
+}
+
+function populateDropdown() {
+  select.innerHTML = '<option value="">Select a student...</option>';
+  students.forEach(s => {
+    const opt = document.createElement('option');
+    opt.value = s.id;
+    opt.textContent = `${s.name} - ${s.grade}`;
+    select.appendChild(opt);
+  });
+}
+
+function showStudent(id) {
+  const s = students.find(stu => stu.id == id);
+  if (!s) return;
+
+  studentName.textContent = s.name;
+  studentGrade.textContent = `${s.grade} (${s.homeLang})`;
+  studentPhoto.src = s.photo;
+  studentPhoto.alt = s.name;
+  addPrintButton();
+
+  document.getElementById('progress').innerHTML = `
+    <h3>Grades</h3>
+    <ul class="grades-list">
+      <li>Math: <strong>${s.math}</strong></li>
+      <li>Reading: <strong>${s.reading}</strong></li>
+      <li>Spanish: <strong>${s.spanish}</strong></li>
+      <li>Science: <strong>${s.science}</strong></li>
+      <li>Social Studies: <strong>${s.social}</strong></li>
+    </ul>
+  `;
+
+  document.getElementById('behavior').innerHTML = `<h3>Behavior Notes</h3><p>${s.behavior}</p>`;
+  document.getElementById('iep').innerHTML = `<h3>IEP Goals</h3><p>${s.iep}</p>`;
+  document.getElementById('contact').innerHTML = `<h3>Parent Contact</h3><p>${s.contact}</p>`;
+
+  dashboard.classList.remove('hidden');
+}
+
+// Events
+select.addEventListener('change', e => e.target.value && showStudent(e.target.value));
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn, .tab-panel').forEach(el => el.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.tab).classList.add('active');
+  });
+});
+
+// Load immediately
+populateDropdown();
