@@ -1,6 +1,9 @@
 // YOUR NEW CSV LINK FROM STEP 2
 const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRCq3kShXZU02-bpw0IPdK21XlXzXIrdSOVgTl8c35d2NiYkaBr24ljVql5P6FnQK5_7IzHZds3vLOw/pub?output=csv';  
 
+// YOUR NEW CSV LINK
+const CSV_URL = 'https://docs.google.com/spreadsheets/d/1H0apGdCoHkYdhYK2xQuIphS-ixp8q61iAqS5tn5BEQk/pub?output=csv';
+
 let students = [];
 let col = {};
 
@@ -19,74 +22,81 @@ function addPrintButton() {
   document.querySelector('.student-header').appendChild(btn);
 }
 
-function findColumn(headers, target) {
-  const normalized = target.toLowerCase().replace(/\s+/g, ' ');
-  return headers.findIndex(h => normalize(h).includes(normalized));
-}
+// Parse CSV with proper quote handling
+function parseCSVLine(line) {
+  const result = [];
+  let current = '';
+  let inQuotes = false;
 
-function normalize(str) {
-  return str.trim().toLowerCase().replace(/\s+/g, ' ');
+  for (let i = 0; i < line.length; i++) {
+    const char = line[i];
+    if (char === '"') {
+      if (inQuotes && line[i + 1] === '"') {
+        current += '"';
+        i++;
+      } else {
+        inQuotes = !inQuotes;
+      }
+    } else if (char === ',' && !inQuotes) {
+      result.push(current.trim());
+      current = '';
+    } else {
+      current += char;
+    }
+  }
+  result.push(current.trim());
+  return result;
 }
 
 async function loadStudents() {
   try {
     const response = await fetch(`${CSV_URL}&t=${Date.now()}`);
-    if (!response.ok) throw new Error('CSV fetch failed');
+    if (!response.ok) throw new Error('CSV failed');
     const csv = await response.text();
     const lines = csv.trim().split('\n');
-    if (lines.length < 2) throw new Error('No data in sheet');
+    if (lines.length < 2) throw new Error('No data');
 
-    const rawHeaders = lines[0].split(',').map(h => h.trim());
-    console.log('Detected headers:', rawHeaders);  // Debug: Check browser console
+    // Parse headers
+    const rawHeaders = parseCSVLine(lines[0]);
+    col = {};
+    rawHeaders.forEach((h, i) => {
+      const key = h.toLowerCase().replace(/\s+/g, ' ');
+      col[key] = i;
+    });
 
-    // Map columns with fuzzy matching
-    col.studentName = findColumn(rawHeaders, 'student name') >= 0 ? findColumn(rawHeaders, 'student name') : 0;
-    col.studentLastName = findColumn(rawHeaders, 'student last name');
-    col.grade = findColumn(rawHeaders, 'grade');
-    col.photoUrl = findColumn(rawHeaders, 'photo_url') >= 0 ? findColumn(rawHeaders, 'photo_url') : findColumn(rawHeaders, 'photo');
-    col.math = findColumn(rawHeaders, 'math');
-    col.reading = findColumn(rawHeaders, 'reading');
-    col.spanish = findColumn(rawHeaders, 'spanish');
-    col.science = findColumn(rawHeaders, 'science');
-    col.socialStudies = findColumn(rawHeaders, 'social studies');
-    col.behaviorNotes = findColumn(rawHeaders, 'behavior_notes');
-    col.iepGoals = findColumn(rawHeaders, 'iep_goals');
-    col.parentContact = findColumn(rawHeaders, 'parent_contact');
-
-    // Check if core columns found
-    if (col.studentName < 0) {
-      select.innerHTML = '<option>Error: Could not find "Student Name" column. Check headers.</option>';
+    // Required
+    if (!('student name' in col)) {
+      select.innerHTML = '<option>Error: "Student Name" column missing</option>';
       return;
     }
 
     students = lines.slice(1).map((line, idx) => {
-      const vals = line.split(',').map(v => v.trim().replace(/^"|"$/g, ''));
-      const first = vals[col.studentName] || '';
-      const last = col.studentLastName >= 0 ? vals[col.studentLastName] || '' : '';
+      const vals = parseCSVLine(line);
+      const first = vals[col['student name']] || '';
+      const last = col['student last name'] !== undefined ? vals[col['student last name']] || '' : '';
       const fullName = `${first} ${last}`.trim() || 'Unknown';
 
       return {
         id: idx + 1,
         fullName,
-        grade: col.grade >= 0 ? vals[col.grade] || '' : '',
-        photo: col.photoUrl >= 0 ? vals[col.photoUrl] || 'https://via.placeholder.com/80?text=Photo' : 'https://via.placeholder.com/80?text=Photo',
+        grade: col['grade'] !== undefined ? vals[col['grade']] || '' : '',
+        photo: col['photo_url'] !== undefined ? vals[col['photo_url']] || 'https://via.placeholder.com/80?text=Photo' : 'https://via.placeholder.com/80?text=Photo',
         grades: {
-          math: col.math >= 0 ? vals[col.math] || '—' : '—',
-          reading: col.reading >= 0 ? vals[col.reading] || '—' : '—',
-          spanish: col.spanish >= 0 ? vals[col.spanish] || '—' : '—',
-          science: col.science >= 0 ? vals[col.science] || '—' : '—',
-          social: col.socialStudies >= 0 ? vals[col.socialStudies] || '—' : '—'
+          math: col['math'] !== undefined ? vals[col['math']] || '—' : '—',
+          reading: col['reading'] !== undefined ? vals[col['reading']] || '—' : '—',
+          spanish: col['spanish'] !== undefined ? vals[col['spanish']] || '—' : '—',
+          science: col['science'] !== undefined ? vals[col['science']] || '—' : '—',
+          social: col['social studies'] !== undefined ? vals[col['social studies']] || '—' : '—'
         },
-        behavior: col.behaviorNotes >= 0 ? vals[col.behaviorNotes] || 'No notes' : 'No notes',
-        iep: col.iepGoals >= 0 ? vals[col.iepGoals] || 'No IEP' : 'No IEP',
-        contact: col.parentContact >= 0 ? vals[col.parentContact] || 'No contact' : 'No contact'
+        behavior: col['behavior_notes'] !== undefined ? vals[col['behavior_notes']] || 'No notes' : 'No notes',
+        iep: col['iep_goals'] !== undefined ? vals[col['iep_goals']] || 'No IEP' : 'No IEP',
+        contact: col['parent_contact'] !== undefined ? vals[col['parent_contact']] || 'No contact' : 'No contact'
       };
     }).filter(s => s.fullName !== 'Unknown');
 
     populateDropdown();
-    console.log('Loaded students:', students);  // Debug
   } catch (err) {
-    console.error('Load error:', err);
+    console.error(err);
     select.innerHTML = '<option>Error: ' + err.message + '</option>';
   }
 }
@@ -94,7 +104,7 @@ async function loadStudents() {
 function populateDropdown() {
   select.innerHTML = '<option value="">Select a student...</option>';
   students.forEach(s => {
-    const opt = document.createElement('option');
+    const opt = document.create.TheElement('option');
     opt.value = s.id;
     opt.textContent = `${s.fullName} - ${s.grade}`;
     select.appendChild(opt);
