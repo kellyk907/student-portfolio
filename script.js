@@ -1,4 +1,4 @@
-// NO EXTERNAL DEPENDENCIES — 25 STUDENTS HARDCODED
+// 25 STUDENTS — FULLY WORKING — NO EXTERNAL DEPENDENCIES
 const students = [
   { id: 1, name: "Maria Gomez", grade: "5th", homeLang: "Spanish", photo: "https://i.pravatar.cc/80?img=1", math: "A-", reading: "B+", spanish: "A", science: "A-", social: "B+", behavior: "Great in group work, loves reading", iep: "Read 20 wpm → On track", contact: "10/30: Email - Great progress!" },
   { id: 2, name: "Jamal Carter", grade: "6th", homeLang: "English", photo: "https://i.pravatar.cc/80?img=12", math: "B", reading: "A-", spanish: "B+", science: "B", social: "B", behavior: "Needed focus reminder", iep: "Math facts in 3 min → Needs support", contact: "10/15: Phone - Behavior plan" },
@@ -57,7 +57,7 @@ function showStudent(id) {
   if (!s) return;
 
   studentName.textContent = s.name;
-  studentGrade.textContent = `${s.grade} (${s.homeLang})`;
+  studentGrade.textContent = `${s.grade} • ${s.homeLang}`;
   studentPhoto.src = s.photo;
   studentPhoto.alt = s.name;
   addPrintButton();
@@ -80,7 +80,6 @@ function showStudent(id) {
   dashboard.classList.remove('hidden');
 }
 
-// Events
 select.addEventListener('change', e => e.target.value && showStudent(e.target.value));
 document.querySelectorAll('.tab-btn').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -90,5 +89,4 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
   });
 });
 
-// Load immediately
 populateDropdown();
