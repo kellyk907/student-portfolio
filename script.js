@@ -1,28 +1,16 @@
 // YOUR GOOGLE SHEET CSV URL (update this once)
 const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRCq3kShXZU02-bpw0IPdK21XlXzXIrdSOVgTl8c35d2NiYkaBr24ljVql5P6FnQK5_7IzHZds3vLOw/pub?output=csv';
 
-let students = [];
-let col = {};  // Will hold column indices by header name
 
-// DOM Elements
+let students = [];
+let col = {};
+
 const select = document.getElementById('student-select');
 const dashboard = document.getElementById('dashboard');
-const studentName = document.getElementById('student name');
-const studentName = document.getElementById('student last name');
-const studentName = document.getElementById('gender');
-const studentGrade = document.getElementById('grade');
-const studentName = document.getElementById('home_language');
+const studentName = document.getElementById('student-name');
+const studentGrade = document.getElementById('student-grade');
 const studentPhoto = document.querySelector('.student-photo');
-const studentGrade = document.getElementById('math');
-const studentGrade = document.getElementById('reading');
-const studentGrade = document.getElementById('spanish');
-const studentGrade = document.getElementById('science');
-const studentGrade = document.getElementById('social studies');
-const studentGrade = document.getElementById('behavior_notes');
-const studentGrade = document.getElementById('iep_goals');
-const studentGrade = document.getElementById('parent_contact');
 
-// Print Button
 function addPrintButton() {
   if (document.querySelector('.print-btn')) return;
   const btn = document.createElement('button');
@@ -32,53 +20,46 @@ function addPrintButton() {
   document.querySelector('.student-header').appendChild(btn);
 }
 
-// Load CSV and map headers
+function normalize(str) {
+  return str.trim().toLowerCase().replace(/\s+/g, ' ');
+}
+
 async function loadStudents() {
   try {
-    const cacheBust = Date.now();
-    const response = await fetch(`${CSV_URL}&t=${cacheBust}`);
-    if (!response.ok) throw new Error('Failed to load CSV');
+    const response = await fetch(`${CSV_URL}&t=${Date.now()}`);
+    if (!response.ok) throw new Error('CSV failed');
     const csv = await response.text();
     const lines = csv.trim().split('\n');
-    
-    // Parse headers (first row)
-    const headers = lines[0].split(',').map(h => h.trim());
-    col = {};
-    headers.forEach((h, i) => col[h] = i);
+    if (lines.length < 2) throw new Error('No data');
 
-    // Required columns check
-    const required = ['Student Name', 'Grade', 'Photo_url'];
-    for (let r of required) {
-      if (!(r in col)) {
-        select.innerHTML = `<option>Error: Missing "${r}" column</option>`;
-        return;
-      }
+    const rawHeaders = lines[0].split(',').map(h => h.trim());
+    col = {};
+    rawHeaders.forEach((h, i) => col[normalize(h)] = i);
+
+    const required = ['student name', 'grade', 'photo_url'];
+    const missing = required.filter(r => !(r in col));
+    if (missing.length) {
+      select.innerHTML = `<option>Error: Missing ${missing.join(', ')}</option>`;
+      return;
     }
 
-    // Parse student rows
     students = lines.slice(1).map((line, idx) => {
       const vals = line.split(',').map(v => v.trim().replace(/^"|"$/g, ''));
-      if (!vals[col['Student Name']]) return null;
-
-      const first = vals[col['Student Name']] || '';
-      const last = vals[col['Student Last Name']] || '';
-      const fullName = `${first} ${last}`.trim() || 'Unknown Student';
+      const first = vals[col['student name']] || '';
+      const last = vals[col['student last name']] || '';
+      const fullName = `${first} ${last}`.trim() || 'Unknown';
 
       return {
         id: idx + 1,
         fullName,
-        firstName: first,
-        lastName: last,
-        gender: vals[col['Gender']] || '',
-        grade: vals[col['Grade']] || '',
-        homeLang: vals[col['Home Language']] || '',
-        photo: vals[col['Photo_url']] || 'https://via.placeholder.com/80?text=Photo',
+        grade: vals[col['grade']] || '',
+        photo: vals[col['photo_url']] || 'https://via.placeholder.com/80?text=Photo',
         grades: {
-          math: vals[col['math']] || 'N/A',
-          reading: vals[col['reading']] || 'N/A',
-          spanish: vals[col['spanish']] || 'N/A',
-          science: vals[col['science']] || 'N/A',
-          social: vals[col['social studies']] || 'N/A'
+          math: vals[col['math']] || '—',
+          reading: vals[col['reading']] || '—',
+          spanish: vals[col['spanish']] || '—',
+          science: vals[col['science']] || '—',
+          social: vals[col['social studies']] || '—'
         },
         behavior: vals[col['behavior_notes']] || 'No notes',
         iep: vals[col['iep_goals']] || 'No IEP',
@@ -87,7 +68,6 @@ async function loadStudents() {
     }).filter(Boolean);
 
     populateDropdown();
-    console.log(`Loaded ${students.length} students`);
   } catch (err) {
     console.error(err);
     select.innerHTML = '<option>Error loading data</option>';
@@ -109,12 +89,10 @@ function showStudent(id) {
   if (!s) return;
 
   studentName.textContent = s.fullName;
-  studentGrade.textContent = `${s.grade} • ${s.homeLang}`;
+  studentGrade.textContent = s.grade;
   studentPhoto.src = s.photo;
-  studentPhoto.alt = s.fullName;
   addPrintButton();
 
-  // Progress Tab
   document.getElementById('progress').innerHTML = `
     <h3>Grades</h3>
     <ul class="grades-list">
@@ -126,7 +104,6 @@ function showStudent(id) {
     </ul>
   `;
 
-  // Other tabs
   document.getElementById('behavior').innerHTML = `<h3>Behavior Notes</h3><p>${s.behavior.replace(/\n/g, '<br>')}</p>`;
   document.getElementById('iep').innerHTML = `<h3>IEP Goals</h3><p>${s.iep.replace(/\n/g, '<br>')}</p>`;
   document.getElementById('contact').innerHTML = `<h3>Parent Contact</h3><p>${s.contact.replace(/\n/g, '<br>')}</p>`;
@@ -134,7 +111,6 @@ function showStudent(id) {
   dashboard.classList.remove('hidden');
 }
 
-// Events
 select.addEventListener('change', e => e.target.value && showStudent(e.target.value));
 document.querySelectorAll('.tab-btn').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -144,6 +120,5 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
   });
 });
 
-// Load + auto-refresh
 loadStudents();
 setInterval(loadStudents, 30000);
