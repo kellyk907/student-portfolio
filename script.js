@@ -1,5 +1,5 @@
-// YOUR GOOGLE SHEET CSV URL (update this once)
-const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRCq3kShXZU02-bpw0IPdK21XlXzXIrdSOVgTl8c35d2NiYkaBr24ljVql5P6FnQK5_7IzHZds3vLOw/pub?output=csv';
+// YOUR NEW CSV LINK FROM STEP 2
+const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRCq3kShXZU02-bpw0IPdK21XlXzXIrdSOVgTl8c35d2NiYkaBr24ljVql5P6FnQK5_7IzHZds3vLOw/pub?output=csv';  
 
 let students = [];
 let col = {};
@@ -19,6 +19,11 @@ function addPrintButton() {
   document.querySelector('.student-header').appendChild(btn);
 }
 
+function findColumn(headers, target) {
+  const normalized = target.toLowerCase().replace(/\s+/g, ' ');
+  return headers.findIndex(h => normalize(h).includes(normalized));
+}
+
 function normalize(str) {
   return str.trim().toLowerCase().replace(/\s+/g, ' ');
 }
@@ -26,50 +31,63 @@ function normalize(str) {
 async function loadStudents() {
   try {
     const response = await fetch(`${CSV_URL}&t=${Date.now()}`);
-    if (!response.ok) throw new Error('CSV failed');
+    if (!response.ok) throw new Error('CSV fetch failed');
     const csv = await response.text();
     const lines = csv.trim().split('\n');
-    if (lines.length < 2) throw new Error('No data');
+    if (lines.length < 2) throw new Error('No data in sheet');
 
     const rawHeaders = lines[0].split(',').map(h => h.trim());
-    col = {};
-    rawHeaders.forEach((h, i) => col[normalize(h)] = i);
+    console.log('Detected headers:', rawHeaders);  // Debug: Check browser console
 
-    const required = ['student name', 'grade', 'photo_url'];
-    const missing = required.filter(r => !(r in col));
-    if (missing.length) {
-      select.innerHTML = `<option>Error: Missing ${missing.join(', ')}</option>`;
+    // Map columns with fuzzy matching
+    col.studentName = findColumn(rawHeaders, 'student name') >= 0 ? findColumn(rawHeaders, 'student name') : 0;
+    col.studentLastName = findColumn(rawHeaders, 'student last name');
+    col.grade = findColumn(rawHeaders, 'grade');
+    col.photoUrl = findColumn(rawHeaders, 'photo_url') >= 0 ? findColumn(rawHeaders, 'photo_url') : findColumn(rawHeaders, 'photo');
+    col.math = findColumn(rawHeaders, 'math');
+    col.reading = findColumn(rawHeaders, 'reading');
+    col.spanish = findColumn(rawHeaders, 'spanish');
+    col.science = findColumn(rawHeaders, 'science');
+    col.socialStudies = findColumn(rawHeaders, 'social studies');
+    col.behaviorNotes = findColumn(rawHeaders, 'behavior_notes');
+    col.iepGoals = findColumn(rawHeaders, 'iep_goals');
+    col.parentContact = findColumn(rawHeaders, 'parent_contact');
+
+    // Check if core columns found
+    if (col.studentName < 0) {
+      select.innerHTML = '<option>Error: Could not find "Student Name" column. Check headers.</option>';
       return;
     }
 
     students = lines.slice(1).map((line, idx) => {
       const vals = line.split(',').map(v => v.trim().replace(/^"|"$/g, ''));
-      const first = vals[col['student name']] || '';
-      const last = vals[col['student last name']] || '';
+      const first = vals[col.studentName] || '';
+      const last = col.studentLastName >= 0 ? vals[col.studentLastName] || '' : '';
       const fullName = `${first} ${last}`.trim() || 'Unknown';
 
       return {
         id: idx + 1,
         fullName,
-        grade: vals[col['grade']] || '',
-        photo: vals[col['photo_url']] || 'https://via.placeholder.com/80?text=Photo',
+        grade: col.grade >= 0 ? vals[col.grade] || '' : '',
+        photo: col.photoUrl >= 0 ? vals[col.photoUrl] || 'https://via.placeholder.com/80?text=Photo' : 'https://via.placeholder.com/80?text=Photo',
         grades: {
-          math: vals[col['math']] || '—',
-          reading: vals[col['reading']] || '—',
-          spanish: vals[col['spanish']] || '—',
-          science: vals[col['science']] || '—',
-          social: vals[col['social studies']] || '—'
+          math: col.math >= 0 ? vals[col.math] || '—' : '—',
+          reading: col.reading >= 0 ? vals[col.reading] || '—' : '—',
+          spanish: col.spanish >= 0 ? vals[col.spanish] || '—' : '—',
+          science: col.science >= 0 ? vals[col.science] || '—' : '—',
+          social: col.socialStudies >= 0 ? vals[col.socialStudies] || '—' : '—'
         },
-        behavior: vals[col['behavior_notes']] || 'No notes',
-        iep: vals[col['iep_goals']] || 'No IEP',
-        contact: vals[col['parent_contact']] || 'No contact'
+        behavior: col.behaviorNotes >= 0 ? vals[col.behaviorNotes] || 'No notes' : 'No notes',
+        iep: col.iepGoals >= 0 ? vals[col.iepGoals] || 'No IEP' : 'No IEP',
+        contact: col.parentContact >= 0 ? vals[col.parentContact] || 'No contact' : 'No contact'
       };
-    }).filter(Boolean);
+    }).filter(s => s.fullName !== 'Unknown');
 
     populateDropdown();
+    console.log('Loaded students:', students);  // Debug
   } catch (err) {
-    console.error(err);
-    select.innerHTML = '<option>Error loading data</option>';
+    console.error('Load error:', err);
+    select.innerHTML = '<option>Error: ' + err.message + '</option>';
   }
 }
 
@@ -113,7 +131,7 @@ function showStudent(id) {
 select.addEventListener('change', e => e.target.value && showStudent(e.target.value));
 document.querySelectorAll('.tab-btn').forEach(btn => {
   btn.addEventListener('click', () => {
-    document.querySelectorAll('.tab-btn,.tab-panel').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.tab-btn, .tab-panel').forEach(el => el.classList.remove('active'));
     btn.classList.add('active');
     document.getElementById(btn.dataset.tab).classList.add('active');
   });
