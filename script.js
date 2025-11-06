@@ -9,8 +9,18 @@ const select = document.getElementById('student-select');
 const dashboard = document.getElementById('dashboard');
 const studentName = document.getElementById('student name');
 const studentName = document.getElementById('student last name');
-const studentGrade = document.getElementById('student-grade');
+const studentName = document.getElementById('gender');
+const studentGrade = document.getElementById('grade');
+const studentName = document.getElementById('home_language');
 const studentPhoto = document.querySelector('.student-photo');
+const studentGrade = document.getElementById('math');
+const studentGrade = document.getElementById('reading');
+const studentGrade = document.getElementById('spanish');
+const studentGrade = document.getElementById('science');
+const studentGrade = document.getElementById('social studies');
+const studentGrade = document.getElementById('behavior_notes');
+const studentGrade = document.getElementById('iep_goals');
+const studentGrade = document.getElementById('parent_contact');
 
 // Print Button
 function addPrintButton() {
